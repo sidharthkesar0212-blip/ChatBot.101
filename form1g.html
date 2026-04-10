@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">MySite</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#contact">Contact</a>
+            <a href="#about">About</a>
+        </div>
+    </nav>
+
+    <section id="home" class="section">Home Section</section>
+    <section id="contact" class="section">Contact Section</section>
+    <section id="about" class="section">About Section</section>
+
+    <!-- ✅ Chatbot -->
+    <div class="chatbot-widget">
+        <div class="chat-header">Chatbot</div>
+
+        <!-- FIX: added id -->
+        <div class="chat-body" id="chat"></div>
+
+        <div class="chat-input">
+            <!-- FIX: added id -->
+            <input type="text" id="input" placeholder="Type a message...">
+
+            <!-- FIX: added onclick -->
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('input');
+            const chat = document.getElementById('chat');
+
+            const message = input.value.trim();
+            if (!message) return;
+
+            chat.innerHTML += `<div class="user">You: ${message}</div>`;
+            input.value = '';
+
+            fetch('http://127.0.0.1:5000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            // FIX: lowercase response
+            .then(response => response.json())
+            .then(data => {
+                chat.innerHTML += `<div class="bot">Bot: ${data.response}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            })
+            .catch(error => {
+                chat.innerHTML += `<div class="bot">Error: Server not responding</div>`;
+            });
+        }
+
+        // OPTIONAL: press Enter to send
+        document.getElementById("input").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>
